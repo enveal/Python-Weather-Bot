@@ -1,8 +1,12 @@
+from greetings.greetings import Greetings
 from botbuilder.core import TurnContext,ActivityHandler
 from botbuilder.ai.luis import LuisApplication,LuisPredictionOptions,LuisRecognizer
 import json
 from weather.weatherApp import WeatherInformation
 from config.config_reader import ConfigReader
+from roomRecommend.room_recommend import RoomRecommend
+from greetings.greetings import Greetings
+
 from logger.logger import Log
 class LuisConnect(ActivityHandler):
     def __init__(self):
@@ -19,9 +23,20 @@ class LuisConnect(ActivityHandler):
 
     async def on_message_activity(self,turn_context:TurnContext):
         weather_info=WeatherInformation()
+        greet_info = Greetings()
+        room_recommend = RoomRecommend()
         luis_result = await self.luis_recognizer.recognize(turn_context)
         result = luis_result.properties["luisResult"]
         json_str = json.loads((str(result.entities[0])).replace("'", "\""))
-        weather=weather_info.get_weather_info(json_str.get('entity'))
-        self.log.write_log(sessionID='session1',log_message="Bot Says: "+str(weather))
-        await turn_context.send_activity(f"{weather}")
+        if result.top_scoring_intent.intent == 'Greetings':
+            greet_response = greet_info.get_greetings_response(json_str.get('entity'))
+            self.log.write_log(sessionID='session1',log_message="Bot Says: "+str(greet_response))
+            await turn_context.send_activity(f"{greet_response}")
+        elif result.top_scoring_intent.intent == 'weather':
+            weather=weather_info.get_weather_info(json_str.get('entity'))
+            self.log.write_log(sessionID='session1',log_message="Bot Says: "+str(weather))
+            await turn_context.send_activity(f"{weather}")
+        else:
+            room_re = room_recommend.get_room_info(json_str.get('entity'))
+            self.log.write_log(sessionID='session1',log_message="Bot Says: "+str(room_re))
+            await turn_context.send_activity(f"{room_re}")
