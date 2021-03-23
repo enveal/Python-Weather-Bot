@@ -2,6 +2,7 @@
 import pyowm
 from config.config_reader import ConfigReader
 
+
 class WeatherInformation():
     def __init__(self):
         self.config_reader = ConfigReader()
@@ -9,8 +10,8 @@ class WeatherInformation():
         self.owmapikey = self.configuration['WEATHER_API_KEY']
         self.owm = pyowm.OWM(self.owmapikey)
 
-    def get_weather_info(self,city):
-        self.city=city
+    def get_weather_info(self, city):
+        self.city = city
 
         observation = self.owm.weather_at_place(city)
         w = observation.get_weather()
@@ -30,5 +31,7 @@ class WeatherInformation():
         fahrenheit_result = w.get_temperature('fahrenheit')
         temp_min_fahrenheit = str(fahrenheit_result.get('temp_min'))
         temp_max_fahrenheit = str(fahrenheit_result.get('temp_max'))
-        self.bot_says = "Today the weather in " + city +" is :\n Maximum Temperature :"+temp_max_celsius+ " Degree Celsius"+".\n Minimum Temperature :"+temp_min_celsius+ " Degree Celsius" +": \n" + "Humidity :" + humidity + "%"
+        self.bot_says = "Today the weather in " + city + " is :\n Maximum Temperature :"+temp_max_celsius + " Degree Celsius"+".\n Minimum Temperature :" + \
+            temp_min_celsius + " Degree Celsius" + ": \n" + "Humidity :" + \
+            humidity + "%" + " .\n Wind Speed :" + str(wind_speed) + " Longitude : " + str(lat) + " Latitude : " + str(lat)
         return self.bot_says

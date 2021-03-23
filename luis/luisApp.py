@@ -27,16 +27,45 @@ class LuisConnect(ActivityHandler):
         room_recommend = RoomRecommend()
         luis_result = await self.luis_recognizer.recognize(turn_context)
         result = luis_result.properties["luisResult"]
-        json_str = json.loads((str(result.entities[0])).replace("'", "\""))
+        if result.entities:
+            json_str = json.loads((str(result.entities[0])).replace("'", "\""))
+        else:
+            json_str = None
         if result.top_scoring_intent.intent == 'Greetings':
-            greet_response = greet_info.get_greetings_response(json_str.get('entity'))
+            if json_str is not None:
+                greet_response = greet_info.get_greetings_response(json_str.get('entity'))
+            else:
+                greet_response = greet_info.get_greetings_response(json_str)
+
             self.log.write_log(sessionID='session1',log_message="Bot Says: "+str(greet_response))
             await turn_context.send_activity(f"{greet_response}")
-        elif result.top_scoring_intent.intent == 'weather':
+
+        elif result.top_scoring_intent.intent == 'Weather':
             weather=weather_info.get_weather_info(json_str.get('entity'))
             self.log.write_log(sessionID='session1',log_message="Bot Says: "+str(weather))
             await turn_context.send_activity(f"{weather}")
-        else:
+
+        elif result.top_scoring_intent.intent == 'Options':
+            option = greet_info.get_options_response(json_str.get('entity'))
+            self.log.write_log(sessionID='session1',log_message="Bot Says: "+str(option))
+            await turn_context.send_activity(f"{option}")
+
+        elif result.top_scoring_intent.intent == 'Thanks':
+            thanks = greet_info.get_thanks_response(json_str.get('entity'))
+            self.log.write_log(sessionID='session1',log_message="Bot Says: "+str(thanks))
+            await turn_context.send_activity(f"{thanks}")
+
+        elif result.top_scoring_intent.intent == 'Goodbye':
+            goodbye = greet_info.get_goodbye_response(json_str.get('entity'))
+            self.log.write_log(sessionID='session1',log_message="Bot Says: "+str(goodbye))
+            await turn_context.send_activity(f"{goodbye}")
+
+        elif result.top_scoring_intent.intent == 'roomRecommend':
             room_re = room_recommend.get_room_info(json_str.get('entity'))
             self.log.write_log(sessionID='session1',log_message="Bot Says: "+str(room_re))
             await turn_context.send_activity(f"{room_re}")
+
+        elif result.top_scoring_intent.intent == 'None':
+            none_response = greet_info.get_none_response("none")
+            self.log.write_log(sessionID='session1',log_message="Bot Says: "+str( none_response))
+            await turn_context.send_activity(f"{none_response}")
