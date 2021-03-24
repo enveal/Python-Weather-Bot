@@ -45,4 +45,4 @@ def messages():
 
 if __name__ == '__main__':
     #app.run(port= 3978)
-    app.run()
+     app.run(port=process.env.PORT or 5000) 
