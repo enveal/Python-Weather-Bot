@@ -16,6 +16,9 @@ bot_adapter = BotFrameworkAdapter(bot_settings)
 #CON_MEMORY = ConversationState(MemoryStorage())
 luis_bot_dialog = LuisConnect()
 
+@app.route('/')
+def hello_world():
+    return 'Hello, World!'
 
 @app.route("/api/messages", methods=["POST"])
 def messages():
